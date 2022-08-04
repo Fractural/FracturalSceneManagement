@@ -1,4 +1,4 @@
-name: Deploy Release Branch
+name: Deploy Release
 
 on:
   push:
@@ -10,14 +10,26 @@ jobs:
     name: Deploy release branch
     runs-on: ubuntu-latest
     steps:
-      # Any prerequisite steps
-      - uses: actions/checkout@master
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Checkout submodules
+        uses: textbook/git-checkout-submodule-action@master
 
       # Deploy to local repo
-      - name: Deploy
+      - name: Deploy to branch
         uses: s0/git-publish-subdir-action@develop
         env:
           REPO: self
           BRANCH: release
           FOLDER: addons/FracturalSceneManagement
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Zip release
+        run: pushd addons && zip -r ../release.zip FracturalCommons FracturalSceneManagement && popd
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release
+          path: release.zip
