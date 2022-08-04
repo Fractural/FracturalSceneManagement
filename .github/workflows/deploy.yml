@@ -25,10 +25,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Zip release
-        run: pushd addons && zip -r ../release.zip FracturalCommons FracturalSceneManagement && popd
+        run: |
+          mkdir release
+          mv FracturalCommons FracturalSceneManagement release
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v2
         with:
           name: Release
-          path: release.zip
+          path: release
