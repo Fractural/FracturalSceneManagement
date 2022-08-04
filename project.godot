@@ -45,7 +45,6 @@ Cache_Tests=true
 [application]
 
 config/name="FracturalSceneManagement"
-run/main_scene="res://tests/Manual/InspectorCSharpEvents/Testing.tscn"
 boot_splash/image="res://bootsplash.png"
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://icon.png"
