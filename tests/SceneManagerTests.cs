@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using WAT;
 using Fractural.SceneManagement;
 using Fractural.Utils;

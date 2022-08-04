@@ -1,6 +1,5 @@
 using Fractural.Utils;
 using Godot;
-using System;
 
 // TODO: Update the CSharp version of SceneManager with the same features from the GDScript verison.
 
@@ -24,7 +23,7 @@ namespace Fractural.SceneManagement
 		public bool AutoLoadInititalScene { get; set; }
 		[Export]
 		public PackedScene InitialScene { get; set; }
-		public Node CurrentScene 
+		public Node CurrentScene
 		{
 			get
 			{
@@ -87,7 +86,7 @@ namespace Fractural.SceneManagement
 			AddChild(transitionInstance);
 
 			transitionInstance.TransitionIn();
-			
+
 			await ToSignal(transitionInstance, nameof(SceneTransition.OnTransitionedIn));
 
 			CurrentScene?.QueueFree();
@@ -107,12 +106,12 @@ namespace Fractural.SceneManagement
 		{
 			GotoScene(ResourceLoader.Load<PackedScene>(scene_path));
 		}
-		
+
 		private void ListenOnNodeAdded(Node addedNode)
 		{
 			if (IsSelfContained && !addedNode.HasParent(this))
 				return;
-			
+
 			EmitSignal(nameof(OnNodeAdded), addedNode);
 		}
 
@@ -120,7 +119,7 @@ namespace Fractural.SceneManagement
 		{
 			if (IsSelfContained && !removedNode.HasParent(this))
 				return;
-			
+
 			EmitSignal(nameof(OnNodeAdded), removedNode);
 		}
 	}
