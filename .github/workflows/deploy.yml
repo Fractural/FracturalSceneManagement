@@ -27,7 +27,7 @@ jobs:
       - name: Zip release
         run: |
           mkdir release
-          mv FracturalCommons FracturalSceneManagement release
+          mv addons/FracturalCommons addons/FracturalSceneManagement release
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v2
