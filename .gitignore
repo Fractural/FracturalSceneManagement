@@ -7,6 +7,9 @@ export_presets.cfg
 .mono/
 data_*/
 
+tests/results.xml
+tests/metadata.json
+
 # VSCode Settings 
 .vscode/
 
