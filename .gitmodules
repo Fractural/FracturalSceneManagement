@@ -2,3 +2,7 @@
 	path = addons/FracturalCommons
 	url = https://github.com/Fractural/fracturalcommons
 	branch = release
+[submodule "addons/FracturalInject"]
+	path = addons/FracturalInject
+	url = https://github.com/fractural/fracturalinject
+	branch = release

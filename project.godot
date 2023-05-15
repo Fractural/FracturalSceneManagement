@@ -24,6 +24,13 @@ _global_script_class_icons={
 "WATTest": ""
 }
 
+[FracturalCommons]
+
+Main/GenerateVersionPreprocessorDefines=false
+"C# Resource Registry/ClassPrefix"=""
+"C# Resource Registry/SearchType"=0
+"C# Resource Registry/ResourceScriptDirectories"=[ "res://" ]
+
 [MonoCustomResourceRegistry]
 
 ClassPrefix=""
@@ -51,7 +58,11 @@ config/icon="res://icon.png"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/FracturalCommons/plugin.cfg", "res://addons/MonoCustomResourceRegistry/plugin.cfg", "res://addons/WAT/plugin.cfg" )
+enabled=PoolStringArray( "res://addons/FracturalCommons/plugin.cfg", "res://addons/FracturalInject/plugin.cfg", "res://addons/WAT/plugin.cfg" )
+
+[mono]
+
+project/assembly_name="FracturalSceneManagement"
 
 [physics]
 

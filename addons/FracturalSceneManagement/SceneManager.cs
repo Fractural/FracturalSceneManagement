@@ -1,126 +1,181 @@
+using Fractural.Commons;
 using Fractural.Utils;
 using Godot;
-
-// TODO: Update the CSharp version of SceneManager with the same features from the GDScript verison.
+using Godot.Collections;
 
 namespace Fractural.SceneManagement
 {
-	// Manages transitions between scenes.
-	public class SceneManager : Node
-	{
-		[Signal]
-		public delegate void OnSceneLoaded(Node loadedScene);
-		[Signal]
-		public delegate void OnSceneReadied(Node readiedScene);
-		[Signal]
-		public delegate void OnNodeAdded(Node addedNode);
-		[Signal]
-		public delegate void OnNodeRemoved(Node removedNode);
+    // Manages transitions between scenes.
+    [RegisteredType(nameof(SceneManager), "res://addons/FracturalSceneManagement/Assets/scenemanager.svg")]
+    [Tool]
+    public class SceneManager : Node
+    {
+        [Signal]
+        public delegate void OnSceneLoaded(Node loadedScene);
+        [Signal]
+        public delegate void OnSceneReadied(Node readiedScene);
+        [Signal]
+        public delegate void OnNodeAdded(Node addedNode);
+        [Signal]
+        public delegate void OnNodeRemoved(Node removedNode);
 
-		[Export]
-		public bool IsSelfContained { get; set; }
-		[Export]
-		public bool AutoLoadInititalScene { get; set; }
-		[Export]
-		public PackedScene InitialScene { get; set; }
-		public Node CurrentScene
-		{
-			get
-			{
-				if (IsSelfContained)
-					return currentScene;
-				else
-					return GetTree().CurrentScene;
-			}
-			set
-			{
-				if (IsSelfContained)
-					currentScene = value;
-				else
-					GetTree().CurrentScene = value;
-			}
-		}
-		private Node currentScene;
-		public Node Root
-		{
-			get
-			{
-				if (IsSelfContained)
-					return this;
-				else
-					return GetTree().Root;
-			}
-		}
+        [Export]
+        public bool IsSelfContained { get; set; }
+        private bool _autoLoadInitialScene;
+        [Export]
+        public bool AutoLoadInititalScene
+        {
+            get => _autoLoadInitialScene;
+            set
+            {
+                _autoLoadInitialScene = value;
+                PropertyListChangedNotify();
+            }
+        }
+        public float InitialSceneLoadDelay { get; set; }
+        public PackedScene InitialSceneLoadTransition { get; set; }
+        public PackedScene InitialScene { get; set; }
 
-		public override void _Ready()
-		{
-			GetTree().Connect("node_added", this, nameof(ListenOnNodeAdded));
-			GetTree().Connect("node_removed", this, nameof(ListenOnNodeRemoved));
-			if (AutoLoadInititalScene)
-				GotoInitialScene();
-		}
+        [Export]
+        public int TransitionCanvasLayer { get; set; } = 100;
 
-		public void GotoInitialScene()
-		{
-			if (InitialScene != null)
-				GotoScene(InitialScene);
-		}
+        public Node CurrentScene
+        {
+            get
+            {
+                if (IsSelfContained)
+                    return _currentScene;
+                else
+                    return GetTree().CurrentScene;
+            }
+            set
+            {
+                if (IsSelfContained)
+                    _currentScene = value;
+                else
+                    GetTree().CurrentScene = value;
+            }
+        }
+        private Node _currentScene;
+        public Node Root
+        {
+            get
+            {
+                if (IsSelfContained)
+                    return this;
+                else
+                    return GetTree().Root;
+            }
+        }
 
-		public void GotoScene(PackedScene scene)
-		{
-			CurrentScene?.QueueFree();
+        private CanvasLayer _transitionCanvasLayer;
 
-			Node instance = scene.Instance();
+        public override void _Ready()
+        {
+            if (NodeUtils.IsInEditorSceneTab(this))
+                return;
+            _transitionCanvasLayer = new CanvasLayer();
+            _transitionCanvasLayer.Layer = TransitionCanvasLayer;
+            AddChild(_transitionCanvasLayer);
+            GetTree().Connect("node_added", this, nameof(ListenOnNodeAdded));
+            GetTree().Connect("node_removed", this, nameof(ListenOnNodeRemoved));
+            if (AutoLoadInititalScene)
+                CallDeferred(nameof(GotoInitialScene));
+        }
 
-			EmitSignal(nameof(OnSceneLoaded), instance);
+        public async void GotoInitialScene()
+        {
+            await ToSignal(GetTree().CreateTimer(InitialSceneLoadDelay), "timeout");
+            if (InitialScene != null)
+            {
+                if (InitialSceneLoadTransition != null)
+                    TransitionToScene(InitialScene, InitialSceneLoadTransition);
+                else
+                    GotoScene(InitialScene);
+            }
+        }
 
-			Root.AddChild(instance);
-			CurrentScene = instance;
+        public void GotoScene(PackedScene scene)
+        {
+            CurrentScene?.QueueFree();
 
-			EmitSignal(nameof(OnSceneReadied), instance);
-		}
+            Node instance = scene.Instance();
 
-		public async void TransitionToScene(PackedScene scene, PackedScene transition)
-		{
-			SceneTransition transitionInstance = transition.Instance<SceneTransition>();
-			AddChild(transitionInstance);
+            EmitSignal(nameof(OnSceneLoaded), instance);
 
-			transitionInstance.TransitionIn();
+            Root.AddChild(instance);
+            CurrentScene = instance;
 
-			await ToSignal(transitionInstance, nameof(SceneTransition.OnTransitionedIn));
+            EmitSignal(nameof(OnSceneReadied), instance);
+        }
 
-			CurrentScene?.QueueFree();
-			Node instance = scene.Instance();
+        public async void TransitionToScene(PackedScene scene, PackedScene transition)
+        {
+            SceneTransition transitionInstance = transition.Instance<SceneTransition>();
+            _transitionCanvasLayer.AddChild(transitionInstance);
 
-			EmitSignal(nameof(OnSceneLoaded), instance);
+            transitionInstance.TransitionIn();
 
-			Root.AddChild(instance);
-			CurrentScene = instance;
+            await ToSignal(transitionInstance, nameof(SceneTransition.OnTransitionedIn));
 
-			await ToSignal(transitionInstance, nameof(SceneTransition.OnTransitionedOut));
+            CurrentScene?.QueueFree();
+            Node instance = scene.Instance();
 
-			EmitSignal(nameof(OnSceneReadied), instance);
-		}
+            EmitSignal(nameof(OnSceneLoaded), instance);
 
-		public void GotoScene(string scene_path)
-		{
-			GotoScene(ResourceLoader.Load<PackedScene>(scene_path));
-		}
+            Root.AddChild(instance);
+            CurrentScene = instance;
 
-		private void ListenOnNodeAdded(Node addedNode)
-		{
-			if (IsSelfContained && !addedNode.HasParent(this))
-				return;
+            transitionInstance.TransitionOut();
 
-			EmitSignal(nameof(OnNodeAdded), addedNode);
-		}
+            await ToSignal(transitionInstance, nameof(SceneTransition.OnTransitionedOut));
+            transitionInstance.QueueFree();
 
-		private void ListenOnNodeRemoved(Node removedNode)
-		{
-			if (IsSelfContained && !removedNode.HasParent(this))
-				return;
+            EmitSignal(nameof(OnSceneReadied), instance);
+        }
 
-			EmitSignal(nameof(OnNodeAdded), removedNode);
-		}
-	}
+        public void GotoScene(string scene_path)
+        {
+            GotoScene(ResourceLoader.Load<PackedScene>(scene_path));
+        }
+
+        public override Array _GetPropertyList()
+        {
+            var builder = new PropertyListBuilder();
+            builder.AddItem(
+                name: nameof(InitialScene),
+                type: Variant.Type.Object,
+                hintString: nameof(PackedScene),
+                usage: AutoLoadInititalScene ? PropertyUsageFlags.Default : PropertyUsageFlags.Noeditor
+            );
+            builder.AddItem(
+                name: nameof(InitialSceneLoadTransition),
+                type: Variant.Type.Object,
+                hintString: nameof(PackedScene),
+                usage: AutoLoadInititalScene ? PropertyUsageFlags.Default : PropertyUsageFlags.Noeditor
+            );
+            builder.AddItem(
+                name: nameof(InitialSceneLoadDelay),
+                type: Variant.Type.Real,
+                usage: AutoLoadInititalScene ? PropertyUsageFlags.Default : PropertyUsageFlags.Noeditor
+            );
+            return builder.Build();
+        }
+
+        private void ListenOnNodeAdded(Node addedNode)
+        {
+            if (IsSelfContained && !addedNode.HasParent(this))
+                return;
+
+            EmitSignal(nameof(OnNodeAdded), addedNode);
+        }
+
+        private void ListenOnNodeRemoved(Node removedNode)
+        {
+            if (IsSelfContained && !removedNode.HasParent(this))
+                return;
+
+            EmitSignal(nameof(OnNodeAdded), removedNode);
+        }
+    }
 }

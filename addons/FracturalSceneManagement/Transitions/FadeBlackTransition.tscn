@@ -4,19 +4,15 @@
 [ext_resource path="res://addons/FracturalSceneManagement/Transitions/FadeTransition.cs" type="Script" id=2]
 [ext_resource path="res://addons/FracturalCommons/Curves/ease_out.tres" type="Curve" id=3]
 
-
 [node name="FadeTransition" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 TransitionInDuration = 1.0
 TransitionInCurve = ExtResource( 1 )
 TransitionOutDuration = 1.0
 TransitionOutCurve = ExtResource( 3 )
-colorRectPath = NodePath("ColorRect")
+_colorRectPath = NodePath("ColorRect")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0

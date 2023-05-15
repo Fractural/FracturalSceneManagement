@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://addons/FracturalInject/DIContainer.cs" type="Script" id=1]
+[ext_resource path="res://bootsplash.png" type="Texture" id=2]
+[ext_resource path="res://addons/FracturalInject/DIServiceChildrenLoader.cs" type="Script" id=3]
+[ext_resource path="res://addons/FracturalSceneManagement/Transitions/FadeBlackTransition.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Tests/InitialScene.tscn" type="PackedScene" id=5]
+[ext_resource path="res://addons/FracturalSceneManagement/SceneManager.cs" type="Script" id=6]
+
+[node name="Manual" type="Node"]
+
+[node name="DIContainer" type="Node" parent="."]
+script = ExtResource( 1 )
+
+[node name="ServiceChildrenLoader" type="Node" parent="DIContainer"]
+script = ExtResource( 3 )
+_diContainerPath = NodePath("..")
+
+[node name="SceneManager" type="Node" parent="DIContainer/ServiceChildrenLoader"]
+script = ExtResource( 6 )
+AutoLoadInititalScene = true
+InitialScene = ExtResource( 5 )
+InitialSceneLoadTransition = ExtResource( 4 )
+InitialSceneLoadDelay = 5.0
+
+[node name="Control" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="TextureRect" type="TextureRect" parent="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
