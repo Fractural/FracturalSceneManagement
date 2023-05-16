@@ -14,13 +14,6 @@ jobs:
       - name: Update Submodules
         run: git submodule update --init
 
-      - name: Remove Stub Project
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "(\r\n|\r|\n)Project(.*?)\"StubProject\"(.*?)(\r\n|\r|\n)EndProject"
-          replace: " "
-          regex: true
-
       - name: Install Dependencies
         run: |
           nuget restore
@@ -38,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Test Results
-          path: Tests/results.xml
+          path: tests/results.xml
