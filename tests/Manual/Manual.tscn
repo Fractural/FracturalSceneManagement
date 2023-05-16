@@ -18,10 +18,10 @@ _diContainerPath = NodePath("..")
 
 [node name="SceneManager" type="Node" parent="DIContainer/ServiceChildrenLoader"]
 script = ExtResource( 6 )
-AutoLoadInititalScene = true
-InitialScene = ExtResource( 5 )
-InitialSceneLoadTransition = ExtResource( 4 )
-InitialSceneLoadDelay = 5.0
+AutoLoadScene = ExtResource( 5 )
+DefaultTransition = ExtResource( 4 )
+AutoLoadTransition = null
+AutoLoadDelay = 5.0
 
 [node name="Control" type="Control" parent="."]
 anchor_right = 1.0
