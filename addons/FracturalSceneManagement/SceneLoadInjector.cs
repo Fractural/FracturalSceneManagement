@@ -21,15 +21,17 @@ namespace Fractural.SceneManagement
         [Export]
         public bool InjectInitialScene { get; set; } = false;
 
-        private SceneManager sceneManager;
-        private DIContainer diContainer;
+        public SceneManager SceneManager { get; set; }
+        public DIContainer DIContainer { get; set; }
 
         public override void _Ready()
         {
-            sceneManager = GetNode<SceneManager>(_sceneManagerPath);
-            diContainer = GetNode<DIContainer>(_diContainerPath);
+            if (SceneManager == null)
+                SceneManager = GetNode<SceneManager>(_sceneManagerPath);
+            if (DIContainer == null)
+                DIContainer = GetNode<DIContainer>(_diContainerPath);
 
-            sceneManager.Connect(nameof(SceneManager.SceneLoaded), this, nameof(OnSceneLoaded));
+            SceneManager.Connect(nameof(SceneManager.SceneLoaded), this, nameof(OnSceneLoaded));
         }
 
         private void OnSceneLoaded(Node scene)
@@ -39,7 +41,7 @@ namespace Fractural.SceneManagement
 
         private void RunInjection(Node node, int depth)
         {
-            diContainer.ResolveNode(node);
+            DIContainer.ResolveNode(node);
             if (depth < InjectionDepth)
             {
                 depth++;

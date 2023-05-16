@@ -7,23 +7,16 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    public class SceneLoadInjectorTests : WAT.Test
-    {
-        [Test]
-        public void TestInjectionIntoLoadedScene()
-        {
-            Describe("");
-        }
-    }
-
-    [Start(nameof(Initialize))]
+    [Start(nameof(Start))]
     public class SceneManagerTests : WAT.Test
     {
+        public const float FadeBlackTransitionIn = 0.5f;
+        public const float FadeBlackTransitionOut = 0.5f;
         private PackedScene _initialScene;
         private PackedScene _targetScene;
         private PackedScene _fadeBlackTransition;
 
-        public void Initialize()
+        public void Start()
         {
             _initialScene = IO.LoadResourceOrNull<PackedScene>("./InitialScene.tscn");
             _targetScene = IO.LoadResourceOrNull<PackedScene>("./TargetScene.tscn");
@@ -152,12 +145,12 @@ namespace Tests
             sceneManager.TransitionToScene(_targetScene, _fadeBlackTransition);
 
             // Wait for fade black to first run
-            await UntilTimeout(1.25f);
+            await UntilTimeout(FadeBlackTransitionIn + 0.1f);
             var loadedTarget = FindNode("TargetScene", owned: false);
             Assert.SignalWasEmittedWithArguments(sceneManager, nameof(SceneManager.SceneLoaded), GDUtils.GDParams(loadedTarget), "Then SceneLoaded is emitted");
             Assert.SignalWasNotEmitted(sceneManager, nameof(SceneManager.SceneReadied), "Then SceneReadied initially isn't emitted");
 
-            await UntilTimeout(2f);
+            await UntilTimeout(FadeBlackTransitionOut);
             Assert.SignalWasEmittedWithArguments(sceneManager, nameof(SceneManager.SceneReadied), GDUtils.GDParams(loadedTarget), "Then SceneReadied finally is emitted after transition finishes");
 
             UnWatch(sceneManager, nameof(SceneManager.SceneLoaded));
