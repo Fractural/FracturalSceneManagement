@@ -8,15 +8,6 @@
 script = ExtResource( 4 )
 
 [node name="SceneLoadInjectorTests" type="Node"]
-script = ExtResource( 2 )
-_customADependecyPath = NodePath("Dependencies/CustomTypeADependency")
-
-[node name="Dependencies" type="Node" parent="."]
-
-[node name="CustomTypeADependency" type="Node" parent="Dependencies"]
-script = ExtResource( 3 )
-ClassType = SubResource( 1 )
-DependencyPath = NodePath("")
 
 [node name="Child" type="Node" parent="."]
 script = ExtResource( 2 )
@@ -25,6 +16,19 @@ _customADependecyPath = NodePath("Dependencies/CustomTypeADependency")
 [node name="Dependencies" type="Node" parent="Child"]
 
 [node name="CustomTypeADependency" type="Node" parent="Child/Dependencies"]
+script = ExtResource( 3 )
+ClassType = SubResource( 1 )
+DependencyPath = NodePath("")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Child" type="Node" parent="Node"]
+script = ExtResource( 2 )
+_customADependecyPath = NodePath("Dependencies/CustomTypeADependency")
+
+[node name="Dependencies" type="Node" parent="Node/Child"]
+
+[node name="CustomTypeADependency" type="Node" parent="Node/Child/Dependencies"]
 script = ExtResource( 3 )
 ClassType = SubResource( 1 )
 DependencyPath = NodePath("")

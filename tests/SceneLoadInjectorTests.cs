@@ -47,10 +47,10 @@ namespace Tests
             sceneManager.TransitionToScene(_sceneLoadInjectorTestScene, _fadeBlackTransition);
 
             await UntilTimeout(SceneManagerTests.FadeBlackTransitionIn + 0.1f);
-            var prefabRoot = sceneManager.Root.GetNode<SceneLoadInjectorTestNode>("SceneLoadInjectorTests");
+            var prefabGrandchild = sceneManager.Root.GetNode<SceneLoadInjectorTestNode>("SceneLoadInjectorTests/Node/Child");
             var prefabChild = sceneManager.Root.GetNode<SceneLoadInjectorTestNode>("SceneLoadInjectorTests/Child");
 
-            AssertSceneLoadInjectorTestNodePopulated(prefabRoot, customTypeA, customTypeB);
+            AssertSceneLoadInjectorTestNodePopulated(prefabGrandchild, customTypeA, customTypeB);
             AssertSceneLoadInjectorTestNodePopulated(prefabChild, customTypeA, customTypeB);
 
             diContainer.QueueFree();

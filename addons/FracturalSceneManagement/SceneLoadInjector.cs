@@ -17,7 +17,7 @@ namespace Fractural.SceneManagement
         /// Normal injection depth of 2 means the root node and it's children will get their dependencies automatically injected.
         /// </summary>
         [Export]
-        public int InjectionDepth { get; set; } = 2;
+        public int InjectionDepth { get; set; } = -1;
         [Export]
         public bool InjectInitialScene { get; set; } = false;
 
@@ -36,18 +36,7 @@ namespace Fractural.SceneManagement
 
         private void OnSceneLoaded(Node scene)
         {
-            RunInjection(scene, 1);
-        }
-
-        private void RunInjection(Node node, int depth)
-        {
-            DIContainer.ResolveNode(node);
-            if (depth < InjectionDepth)
-            {
-                depth++;
-                foreach (Node child in node.GetChildren())
-                    RunInjection(child, depth);
-            }
+            DIContainer.ResolveNode(scene, InjectionDepth);
         }
     }
 }
